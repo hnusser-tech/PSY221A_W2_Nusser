@@ -1,0 +1,152 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r Hannah's Hypotheses}
+
+### H1: Categorical IV - Continuous/Composite DV
+
+Country of residence (categorical IV) - Individualistic values (composite)
+
+One's social ideologies are indicative of their country of residence, suggesting that one's country of residence may be a predictor of one's individualistic values.
+
+### H2: Continuous - Continuous 
+
+Relationship length (continuous) - Intensity of love feelings (continuous) 
+
+Love may fluctuate throughout a relationship, given that earlier love may feel stronger and more passionate, whereas later love leads to a prioritization of commitment and longevity. Given this, intensity of love feelings may spike earlier in a relationship and reach a plateau in later years.
+
+```
+
+
+```{r loading data and packages}
+
+raw <-read.csv("data/raw/data_doctored.csv")
+
+library("reshape2")
+library("ggplot2")
+library("ggrain")
+```
+
+```{r configuring useful data set}
+
+###
+
+data <- raw[ ,c("ResponseId", "Sex_birth", "Relationship_status", 
+                "Country_raised", "Individualism_col_1", 
+                "Individualism_col_2", "Individualism_col_4", 
+                "Relationship_length", "Love_how_much_1")]
+
+
+```
+
+```{r checking NA's}
+
+#count na
+sum(is.na(data$ResponseId))
+
+#count blank
+sum(data$ResponseId=="",na.rm=TRUE)
+
+#count duplicates
+sum(duplicated(data$ResponseId))
+
+#inspect records with missing or blank IDs
+missingId <- which(is.na(data$ResponseId))
+data[missingId,]
+
+#remove the known empty record with no ID, then check the row count
+data <- data[!is.na(data$ResponseId),]
+
+#! indicates the opposite, "no"
+
+```
+
+```{r missing values}
+
+data[, 5:7] <- apply(data[ , 5:7], 2, function(x) {
+  ifelse(x <1 | x > 7, NA, x)
+})
+
+```
+
+```{r recoding sex}
+#codebook: 0 = Male, 1 = Female, 2 = Intersex
+table(data$Sex_birth,useNA="ifany")
+
+#turn sex_birth into a factor with labels Male, Female, and Intersex
+data$Sex_birth <- factor(data$Sex_birth,
+                         levels = c(0,1,2),
+                         labels = c("Male","Female","Intersex"))
+
+table(data$Sex_birth,useNA="ifany")
+
+```
+
+```{r individualism}
+## checking if numeric
+is.numeric(data[,5])
+is.numeric(data[,6])
+is.numeric(data[,7])
+
+# making these columns numeric
+data[,5:7] <- lapply(data[,5:7], as.numeric)
+
+# creating a total account of individualist questions
+data$individualistTotal <- rowSums(data[,5:7],na.rm=FALSE)
+
+# create reversed mean of individualist to measure individualism
+data$individualism <- 8 - (rowMeans(data[ , 5:7], na.rm = TRUE))
+## NOW: higher === greater individualism; lower == greater collectivism
+
+
+```
+
+
+
+```{r P1 plotting}
+
+### P1: Country where one is raised, between Germany and USA, influences
+### an individual's level of individualism
+
+# data set that just includes people raised in Germany or the USA
+GermanyUSAData <- data[data$Country_raised %in% c("Germany", "USA"), ]
+
+
+H1Rain <- ggplot(data = GermanyUSAData,
+aes(x = Country_raised,
+y = individualism,
+fill = Country_raised)) +
+labs(x = "Raised in Germany versus USA",
+y = "Level of Individualism",
+fill = "Germany vs USA") +
+scale_x_discrete(labels = c("Gernany", "USA")) +
+scale_fill_discrete(labels = c("Germany", "USA")) +
+geom_rain(alpha=.5) 
+
+H1Rain
+
+```
+
+
+```{r P2 plotting}
+
+### P2: Relationship length influences the feelings of love present.
+
+H2Point <- ggplot(data = data,
+aes(x = Relationship_length,
+y = Love_how_much_1,
+color = Relationship_length)) +
+labs(x = "Length of Romantic Relationship",
+y = "Length of Relationship (years)") +
+  geom_jitter(width = .12, height = .04, alpha = .6, size = .6) +
+geom_smooth(method = "lm", se = TRUE) +
+theme_gray(base_size = 8)
+
+H2Point
+
+
+```
+
