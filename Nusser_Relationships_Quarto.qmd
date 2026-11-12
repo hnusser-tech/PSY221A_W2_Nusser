@@ -1,0 +1,138 @@
+---
+title: "Nusser_Relationships_Quarto"
+author: "Hannah Nusser"
+format:
+  html:
+    toc: true
+    code-fold: true
+execute:
+  echo: true
+---
+
+```{r loading data}
+
+#| label: load-data
+#| include: false
+library("reshape2")
+library("ggplot2")
+library("ggrain")
+
+raw <-read.csv("data/raw/data_doctored.csv")
+data <- raw[ ,c("ResponseId", "Sex_birth", "Relationship_status", 
+                "Country_raised", "Individualism_col_1", 
+                "Individualism_col_2", "Individualism_col_4", 
+                "Relationship_length", "Love_how_much_1")]
+
+
+```
+
+```{r cleaning data}
+
+data <- data[!is.na(data$ResponseId),]
+data[, 5:7] <- apply(data[ , 5:7], 2, function(x) {
+  ifelse(x <1 | x > 7, NA, x)
+})
+
+#codebook: 0 = Male, 1 = Female, 2 = Intersex
+table(data$Sex_birth,useNA="ifany")
+
+#turn sex_birth into a factor with labels Male, Female, and Intersex
+data$Sex_birth <- factor(data$Sex_birth,
+                         levels = c(0,1,2),
+                         labels = c("Male","Female","Intersex"))
+
+table(data$Sex_birth,useNA="ifany")
+
+```
+
+## Hypothesis 1: Germany and USA participants differ in levels of individualism
+
+### Variables: 
+
+**Country raised (Country_raised)**: a categorical variable defining where participants were raised, in this case only looking at participants who respond with "Germany" or "United States"
+
+**Individualism**: a composite variable compiled of three separate individualist/collectivist-determining questions (Individualism_col_1, Individualism_col_2, Individualism_col_4) that were reverse-scored.
+
+```{r individualism}
+
+## checking if numeric
+is.numeric(data[,5])
+is.numeric(data[,6])
+is.numeric(data[,7])
+
+# making these columns numeric
+data[,5:7] <- lapply(data[,5:7], as.numeric)
+
+# creating a total account of individualist questions
+data$individualistTotal <- rowSums(data[,5:7],na.rm=FALSE)
+
+# create reversed mean of individualist to measure individualism
+data$individualism <- 8 - (rowMeans(data[ , 5:7], na.rm = TRUE))
+## NOW: higher === greater individualism; lower == greater collectivism
+
+```
+
+```{r}
+
+#| label: h1-descriptives
+
+summary (data[, c("individualism", "Country_raised")])
+
+```
+
+## H1 Graph
+
+```{r H1 graphing}
+
+# data set that just includes people raised in Germany or the USA
+GermanyUSAData <- data[data$Country_raised %in% c("Germany", "USA"), ]
+
+
+H1Rain <- ggplot(data = GermanyUSAData,
+                 aes(x = Country_raised,
+                     y = individualism,
+                     fill = Country_raised)) +
+  labs(x = "Raised in Germany versus USA",
+       y = "Level of Individualism",
+       fill = "Germany vs USA") +
+  scale_x_discrete(labels = c("Gernany", "USA")) +
+  scale_fill_discrete(labels = c("Germany", "USA")) +
+  geom_rain(alpha=.5) 
+
+H1Rain
+
+
+```
+
+## Hypothesis 2: Length of relationship influences present feelings of love
+
+### Variables: 
+
+**Length of relationship (Relationship_length)**: length of current relationship for participants in committed relationships, measured in years.
+
+**Feelings of love (Love_how_much_1)**: how much a participant loves their romantic partner, if they are in a committed relationship.
+
+```{r}
+
+#| label: h2-descriptives
+
+summary (data[, c("Relationship_length", "Love_how_much_1")])
+
+```
+
+## H2 Graph
+
+```{r}
+
+H2Point <- ggplot(data = data,
+                  aes(x = Relationship_length,
+                      y = Love_how_much_1,
+                      color = Relationship_length)) +
+  labs(x = "Length of Romantic Relationship",
+       y = "Length of Relationship (years)") +
+  geom_jitter(width = .12, height = .04, alpha = .6, size = .6) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_gray(base_size = 8)
+
+H2Point
+```
