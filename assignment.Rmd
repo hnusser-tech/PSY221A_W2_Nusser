@@ -4,6 +4,11 @@ editor_options:
   chunk_output_type: console
 ---
 
+###JK: Move the hypothesis text outside the R code chunk. ###
+# These sentences are being treated as R code, so Knit stops before it reaches your data processing.
+# Remove the opening chunk fence immediately below and its closing fence after the hypotheses, leaving the text as ordinary Markdown.
+###  End of comment ###
+
 ```{r Hannah's Hypotheses}
 
 ### H1: Categorical IV - Continuous/Composite DV
@@ -111,6 +116,16 @@ data$individualism <- 8 - (rowMeans(data[ , 5:7], na.rm = TRUE))
 ### P1: Country where one is raised, between Germany and USA, influences
 ### an individual's level of individualism
 
+###JK: Standardize country names before selecting your two groups, and match the hypothesis to Country_raised. ###
+# Country_raised records where respondents spent most of childhood. Update the initial hypothesis, which currently says country of residence.
+# The data contain USA, "USA " with a trailing space, and United States. Your current filter excludes the latter two versions, which each occur 50 times.
+# data$Country_raised <- trimws(data$Country_raised)
+# data$Country_raised[data$Country_raised == "United States"] <- "USA"
+# GermanyUSAData <- data[data$Country_raised %in% c("Germany", "USA") & !is.na(data$individualism), ]
+# table(GermanyUSAData$Country_raised, useNA = "ifany")
+# Also correct "Gernany" to "Germany" in the axis labels below.
+###  End of comment ###
+
 # data set that just includes people raised in Germany or the USA
 GermanyUSAData <- data[data$Country_raised %in% c("Germany", "USA"), ]
 
@@ -135,6 +150,25 @@ H1Rain
 
 ### P2: Relationship length influences the feelings of love present.
 
+###JK: Make and validate a separate H2 table before plotting. ###
+# Relationship_length uses 1 for one year or less and 80 for 80 years or more; Love_how_much_1 ranges from 0 to 100, and zero is valid.
+# h2Data <- data[, c("ResponseId", "Relationship_status", "Relationship_length", "Love_how_much_1")]
+# summary(h2Data)
+# table(h2Data$Relationship_status, useNA = "ifany")
+# h2Data$Relationship_length[!(h2Data$Relationship_length %in% 1:80)] <- NA
+# h2Data$Love_how_much_1[h2Data$Love_how_much_1 < 0 | h2Data$Love_how_much_1 > 100] <- NA
+# h2Data <- h2Data[complete.cases(h2Data[, c("Relationship_length", "Love_how_much_1")]), ]
+# Among people with both responses, 518 report relationship status 0 and one has missing status. I recommend restricting to status 1, 2, or 3 for a current-relationship hypothesis:
+# h2Data <- h2Data[h2Data$Relationship_status %in% c(1, 2, 3), ]
+# colSums(is.na(h2Data))
+# Use h2Data in the graph below and label the y-axis as "Intensity of love feelings (0–100)".
+###  End of comment ###
+
+###JK: Correct the y-axis label. ###
+# The y variable is Love_how_much_1, but its label currently says relationship length in years.
+# Use y = "Intensity of love feelings (0–100)" and x = "Relationship duration (years)" in labs().
+###  End of comment ###
+
 H2Point <- ggplot(data = data,
 aes(x = Relationship_length,
 y = Love_how_much_1,
@@ -150,3 +184,15 @@ H2Point
 
 ```
 
+
+
+###JK: Save your final tables and generate their codebooks as in the Lab03 example. ###
+# Your script currently creates graphs but does not save the processed tables for later labs.
+# h1Data <- GermanyUSAData[, c("ResponseId", "Country_raised", "individualism")]
+# h2Data <- h2Data[, c("ResponseId", "Relationship_length", "Love_how_much_1")]
+# dir.create("data/processed_data", recursive = TRUE, showWarnings = FALSE)
+# write.csv(h1Data, "data/processed_data/h1.csv", row.names = FALSE)
+# write.csv(h2Data, "data/processed_data/h2.csv", row.names = FALSE)
+# Follow the TA Lab03 example to load codebook, assign var_label() descriptions, and call compact_codebook(h1Data) and compact_codebook(h2Data) inside R chunks.
+# Include the country definition, score direction, missing-item rule, response ranges, and relationship-duration endpoint meanings in your descriptions.
+###  End of comment ###
