@@ -9,6 +9,12 @@ execute:
   echo: true
 ---
 
+###JK: Please submit your descriptive-statistics code in a separate Rmd or R script. ###
+# Keep the Quarto report as your report, and put the descriptive-statistics code in its own assignment file.
+# Include code to load the final H1 and H2 data and summarize individualism, relationship duration, and love intensity.
+# Apply the sample-selection feedback below so each summary describes the participants used for that hypothesis.
+###  End of comment ###
+
 ```{r loading data}
 
 #| label: load-data
@@ -75,6 +81,13 @@ data$individualism <- 8 - (rowMeans(data[ , 5:7], na.rm = TRUE))
 ```{r}
 
 #| label: h1-descriptives
+
+###JK: Calculate descriptives from the same participants used for each hypothesis. ###
+# This H1 summary includes all countries, while your H1 compares only Germany and the USA. Move the summary below the creation of GermanyUSAData and use:
+# summary(GermanyUSAData$individualism)
+# table(GermanyUSAData$Country_raised)
+# For H2, summarize the final table after selecting relationship status 1, 2, or 3 and keeping participants with both duration and love-intensity responses, as discussed in the wrangling feedback.
+###  End of comment ###
 
 summary (data[, c("individualism", "Country_raised")])
 
