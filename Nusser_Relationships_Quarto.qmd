@@ -47,7 +47,7 @@ table(data$Sex_birth,useNA="ifany")
 
 ## Hypothesis 1: Germany and USA participants differ in levels of individualism
 
-### Variables: 
+### Variables:
 
 **Country raised (Country_raised)**: a categorical variable defining where participants were raised, in this case only looking at participants who respond with "Germany" or "United States"
 
@@ -106,7 +106,7 @@ H1Rain
 
 ## Hypothesis 2: Length of relationship influences present feelings of love
 
-### Variables: 
+### Variables:
 
 **Length of relationship (Relationship_length)**: length of current relationship for participants in committed relationships, measured in years.
 

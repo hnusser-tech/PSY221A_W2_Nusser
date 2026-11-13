@@ -8,9 +8,9 @@ editor_options:
 
 ### H1: Categorical IV - Continuous/Composite DV
 
-Country of residence (categorical IV) - Individualistic values (composite)
+# Country of residence (categorical IV) - Individualistic values (composite)
 
-One's social ideologies are indicative of their country of residence, suggesting that one's country of residence may be a predictor of one's individualistic values.
+# One's social ideologies are indicative of their country of residence, suggesting that one's country of residence may be a predictor of one's individualistic values.
 
 ### H2: Continuous - Continuous 
 
