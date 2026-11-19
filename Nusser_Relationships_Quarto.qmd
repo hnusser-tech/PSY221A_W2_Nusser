@@ -137,6 +137,11 @@ summary (data[, c("Relationship_length", "Love_how_much_1")])
 
 ```{r}
 
+###JK: Update the H2 y-axis label in this report as well. ###
+# The graph plots Love_how_much_1, so use "Intensity of love feelings (0-100)" for y and "Relationship duration (years)" for x.
+# Apply the H1/H2 sample-selection comments above, then render again and replace docs/index.html with the updated report.
+###  End of comment ###
+
 H2Point <- ggplot(data = data,
                   aes(x = Relationship_length,
                       y = Love_how_much_1,
